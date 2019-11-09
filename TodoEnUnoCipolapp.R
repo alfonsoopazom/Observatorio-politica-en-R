@@ -26,8 +26,8 @@ pat ="(RT|via)(((?:\\b\\W*|)@\\w+)+)|,|:|(https|http)://t.co/[A-Za-z\\d]+|&amp;|
 patref ="@[A-Za-z0-9]*[^\\s:_.<]"
 patHashtag="#[A-Za-z0-9????]*"
 
-Sys.setenv("plotly_username"="Javierchb")
-Sys.setenv("plotly_api_key"="sPUb2cjxp6K6tXQXSRj2")
+Sys.setenv("plotly_username"="observatorio2019")
+Sys.setenv("plotly_api_key"="BObHnm3fSEoIg5SCk3a2")
 
 
 if(dir.exists(paste(carpeta, "Resultados", sep = "/")))
@@ -68,11 +68,7 @@ if(dir.exists(paste(carpeta, "Resultados", sep = "/")))
     {}else
     {
       dir.create(paste( ubicacion_evolucion, "Histograma", sep = "/"))
-      #dir.create(paste( ubicacion_evolucion, "Grafico Torta", sep = "/"))
-      
       ubicacion_histograma <- "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/Evolucion/Histograma"
-      #ubicacion_reproduccion <- "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/Evolucion/Reproduccion-Produccion-Iteracion"
-      
     }
     
     # if de las carpetas DETERMINANTES SEMANTICOS
@@ -113,16 +109,16 @@ if(dir.exists(paste(carpeta, "Resultados", sep = "/")))
       
     }
     # if de las carpetas EFECTOS Y EXITOS
-    if((dir.exists(paste( ubicacion_efectos, "Aceptacion", sep = "/")))
+    if((dir.exists(paste( ubicacion_efectos, "Valoracion", sep = "/")))
        & (dir.exists(paste( ubicacion_efectos, "Categorizacion", sep = "/")))
        & (dir.exists(paste( ubicacion_efectos, "MuestraTotal", sep = "/"))))
     {}else
     {
-      dir.create(paste(ubicacion_efectos, "Aceptacion", sep = "/"))
+      dir.create(paste(ubicacion_efectos, "Valoracion", sep = "/"))
       dir.create(paste(ubicacion_efectos, "Categorizacion", sep = "/"))
       dir.create(paste(ubicacion_efectos, "MuestraTotal", sep = "/"))
       
-      ubicacion_aceptacion <- "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/Efectos/Aceptacion"
+      ubicacion_Valoracion <- "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/Efectos/Valoracion"
       ubicacion_categorizacion <- "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/Efectos/Categorizacion"
       ubicacion_muestraTotal <- "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/Efectos/MuestraTotal"
       
@@ -170,8 +166,8 @@ while(i <= numArchivos)
   archivolink = paste("porcentajelink",nombreResultado,".csv")
   archivoRanking = paste("ranking",nombreResultado,".csv")
   archivoCaracteres = paste("caracteres",nombreResultado,".csv")
-  archivoAceptacion = paste("aceptacion",nombreResultado,".csv")
-  archivoAceptacionTweet = paste("aceptacionTweet",nombreResultado,".csv")
+  archivoValoracion = paste("Valoracion",nombreResultado,".csv")
+  archivoValoracionTweet = paste("ValoracionTweet",nombreResultado,".csv")
   archivoViralizacion = paste("viralizacion",nombreResultado,".csv")
   archivoViralizacionTweet = paste("viralizacionTweet",nombreResultado,".csv")
   archivoReferentes = paste("referentes",nombreResultado,".csv")
@@ -182,7 +178,9 @@ while(i <= numArchivos)
   archivoUnionDispositivos = paste("consulta_union",nombreResultado,".csv")
   archivoGenero = paste("genero",nombreResultado,".csv")
   archivoUnionSexo= paste("union_sexo",nombreResultado,".csv")
-  archivo_masificadores = paste("masificadores",nombreResultado,".csv")
+  archivoMasificadores = paste("masificadores",nombreResultado,".csv")
+  archivoActivistas = paste("activistas",nombreResultado,".csv")
+  archivoCategorizacion = paste("categorizacion",nombreResultado,".csv")
   
   aux <- read.csv(archivo_temporal,header = TRUE,sep = ",",encoding = "UTF-8")
   aux <- as.data.frame(aux)
@@ -192,7 +190,10 @@ while(i <= numArchivos)
   
   # --- Evolucion y Sentido --- #
   # --- Histograma --- #
-  histograma <- sqldf('select  substr(created_at,1,10) FECHA,count(substr(created_at,1,10)) CANTIDAD  from aux group by substr(created_at,1,10) ORDER BY substr(created_at,1,10) DESC')
+  histograma <- sqldf('select  substr(created_at,1,10) FECHA,count(substr(created_at,1,10)) CANTIDAD  
+                       from aux group by substr(created_at,1,10) 
+                       ORDER BY substr(created_at,1,10) DESC')
+  
   write.csv(histograma,file = paste(ubicacion_histograma,"histogramax1dia.csv",sep = "/"),row.names=FALSE)
   write.csv(histograma,file = paste(ubicacion_ResultadosGenerales,"histogramax1diaA.csv",sep = "/"),row.names=FALSE)
   
@@ -245,7 +246,7 @@ while(i <= numArchivos)
   N = total$totalDatos
   
   #Porcentaje para el grafico.
-  RIP = matrix(c(trunc((AA/N)*100*10^2)/10^2,trunc((NART/N)*100*10^2)/10^2,trunc((RT/N)*100*10^2)/10^2,"Interacci?n","Producci?n","Reproducci?n"),ncol = 2)
+  RIP = matrix(c(trunc((AA/N)*100*10^2)/10^2,trunc((NART/N)*100*10^2)/10^2,trunc((RT/N)*100*10^2)/10^2,"Interaccion","Produccion","Reproduccion"),ncol = 2)
   colnames(RIP) = c("Porcentaje","Tipo")
   RIP = as.data.frame(RIP)
   
@@ -262,7 +263,6 @@ while(i <= numArchivos)
   
   # --- Determinantes Semanticos --- #
   # --- Nube --- #
-  
   conectores<-read.csv(paste(carpeta,"conectores.csv",sep = "/"), header = FALSE)
   tempora_nube<-mutate(tempora_nube,text = str_replace_all(text,pat," "))
   lis<-unnest_tokens(tempora_nube,word,text, token="ngrams",n=1 )
@@ -334,7 +334,7 @@ while(i <= numArchivos)
   write.csv(referentes, file = paste(ubicacion_ResultadosGenerales,archivoReferentes,sep = "/"),row.names=FALSE)
   
   # --- Influenciadores --- #
-  influenciadores = "select retweet_screen_name USUARIO,count(retweet_screen_name) CANTIDAD from aux 
+  influenciadores = "Select retweet_screen_name USUARIO,count(retweet_screen_name) CANTIDAD from aux 
                     where is_retweet 
                     group by retweet_screen_name 
                     order by 
@@ -391,56 +391,26 @@ while(i <= numArchivos)
   write.csv(tabla, file = paste(ubicacion_ResultadosGenerales,archivoMovi,sep = "/"),row.names=FALSE)
   write.csv(ranking, file = paste(ubicacion_ResultadosGenerales, archivoRanking, sep = "/"), row.names = FALSE)
   
-  #---Categorizacion por genero---#
-  
-  total_filas = "SELECT count(user_id) FROM aux"
-  total_filas=sqldf(total_filas)
-  
-  genero = "SELECT sexo Sexo, count (sexo) Cantidad FROM aux
-            WHERE sexo = 'f' OR sexo = 'm' OR sexo ='na'
-            GROUP BY sexo
-            ORDER BY Cantidad DESC  
-            "
-  na = "SELECT count(sexo) as NA 
-        FROM aux
-        WHERE sexo LIKE 'na'"
-  na = sqldf(na)
-  
-  f = "SELECT count(sexo) as F
-       FROM aux WHERE sexo LIKE 'f' "
-  f = sqldf(f)
-  
-  m = "SELECT count(sexo) as M
-      FROM aux WHERE sexo LIKE 'm' "
-  m = sqldf(m)
-  
-  porcentaje_na = round((na/total_filas)*100,3)
-  porcentaje_f = round((f/total_filas)*100,3)
-  porcentaje_m = round((m/total_filas)*100,3)
-  
-  union_sexo = "SELECT * FROM porcentaje_na, porcentaje_f, porcentaje_m"
-  union_sexo = sqldf(union_sexo)
-  
-  write.csv(genero,file = paste(ubicacion_sexo,archivoGenero,sep = "/"),row.names=FALSE)
-  write.csv(union_sexo,file = paste(ubicacion_sexo,archivoUnionSexo,sep = "/"),row.names=FALSE)
-  #Ubicacion resultados generales
-  write.csv(genero,file = paste(ubicacion_ResultadosGenerales,archivoGenero,sep = "/"),row.names=FALSE)
-  write.csv(union_sexo,file = paste(ubicacion_ResultadosGenerales,archivoUnionSexo,sep = "/"),row.names=FALSE)
-  
   # --- Masificadores --- #
   #Usuarios que participan de  una conversacion y que tienen un gran numero de seguidores
   
-  masificadores = 'SELECT screen_name Cuenta, quoted_followers_count Cantidad_seguidores
+  masificadores = 'SELECT distinct(screen_name) Cuenta, followers_count Cantidad_seguidores
                   FROM aux WHERE Cantidad_seguidores NOT LIKE "NA" 
                   GROUP BY Cuenta
                   ORDER BY Cantidad_seguidores DESC
                   LIMIT 20'
   masificadores = sqldf(masificadores)
-  
-  write.csv(masificadores,file = paste(ubicacion_masificadores,archivo_masificadores,sep = "/"),row.names=FALSE)
+  write.csv(masificadores,file = paste(ubicacion_masificadores,archivoMasificadores,sep = "/"),row.names=FALSE)
 
   # --- Activistas --- #
-  #Falta activistas
+  
+  activistas = 'SELECT screen_name Twitero,count(screen_name) Cantidad 
+                FROM aux WHERE is_retweet = 0 
+                GROUP BY screen_name 
+                ORDER BY count(screen_name) desc'
+  activistas = sqldf(activistas)
+  write.csv(activistas, file = paste(ubicacion_activistas,archivoActivistas,sep = "/"),row.names = FALSE)
+  
   
   # --- Contenidos multimedia --- #
   
@@ -452,19 +422,17 @@ while(i <= numArchivos)
                   ORDER BY cantidad DESC
                   LIMIT 5"
   
-  columnas_link = "SELECT count(urls_url) as Porcentaje FROM aux"
+  columnas_link = "SELECT (count(distinct(urls_url))-1) as Porcentaje FROM aux"
   
-  total_filas =  "SELECT count(user_id) FROM aux"
-  
-  cantidad_fotos = "SELECT count(media_type) Cantidad FROM aux WHERE  media_type != ''"
+  cantidad_fotos = "SELECT count(media_type) porcentaje_fotos FROM aux WHERE  media_type != ''"
   
   media =sqldf(media)
   ranking_url = sqldf(ranking_url)
-  links= sqldf(columnas_link)
-  total_filas=sqldf(total_filas)
-  porcentaje_links = (links/total_filas)*100
+  columnas_links= sqldf(columnas_link)
+  #total_filas=sqldf(total_filas)
+  porcentaje_links = round((columnas_links/total_filas)*100,3)
   cantidad_fotos = sqldf(cantidad_fotos) 
-  fotos = round((cantidad_fotos/total_filas)*100,2)
+  fotos = round((cantidad_fotos/total_filas)*100,3)
   
   write.csv(ranking,file = paste(ubicacion_multimedia,archivoRanking,sep = "/"),row.names = FALSE)
   write.csv(porcentaje_links, file=paste(ubicacion_multimedia,archivolink,sep="/"),row.names = FALSE)
@@ -490,24 +458,67 @@ while(i <= numArchivos)
   
   # --- Efectos y exitos --- #
   # --- Categorizacion --- #
-  # --- Aceptacion --- #
-  aceptacion = "SELECT user_id as ID_usuario,
+  
+  categorizacion <- "SELECT COUNT(DISTINCT(user_id)) ID_Usuario FROM aux"
+  categorizacion <- sqldf(categorizacion)
+  
+  if(categorizacion2<1000){
+    categorizacionUno <- sqldf('SELECT DISTINCT(user_id), status_id, created_at, screen_name,text,source,display_text_width,
+                      reply_to_status_id,reply_to_user_id,reply_to_screen_name,is_quote,is_retweet,favorite_count,
+                      retweet_count,hashtags,symbols,urls_url,"urls_t.co" "urls_t.co",urls_expanded_url,
+                      media_url,"media_t.co" "media_t.co",media_expanded_url,media_type,ext_media_url,"ext_media_t.co" "ext_media_t.co",ext_media_expanded_url,
+                      ext_media_type,mentions_user_id,mentions_screen_name,lang,quoted_status_id,quoted_text,quoted_created_at,
+                      quoted_source,quoted_favorite_count,quoted_retweet_count,quoted_user_id,quoted_screen_name,quoted_name,
+                      quoted_followers_count,quoted_friends_count,quoted_statuses_count,quoted_location,quoted_description,
+                      quoted_verified,retweet_status_id,retweet_text,retweet_created_at,retweet_source,retweet_favorite_count,
+                      retweet_retweet_count,retweet_user_id,retweet_screen_name,retweet_name,retweet_followers_count,
+                      retweet_friends_count,retweet_statuses_count,retweet_location,retweet_description,retweet_verified,place_url,
+                      place_name,place_full_name,place_type,country,country_code,geo_coords,coords_coords,bbox_coords,status_url,
+                      name,location,description,url,protected,followers_count,friends_count,listed_count,statuses_count,
+                      favourites_count,account_created_at,verified,profile_url,profile_expanded_url,account_lang,profile_banner_url,
+                      profile_background_url,profile_image_url
+                      FROM 	aux')
+    categorizacionUno <-sqldf(categorizacionUno)
+                     
+  }
+  
+  auxiliar <- as.data.frame(aux)
+  #auxiliar[2,1]
+  
+  if(categorizacion == 100 || categorizacion > 100){
+   
+    
+    for(i in 1:100)
+      {
+        #print(auxiliar[i,1])
+        matriz<-matrix(c(auxiliar[i,1]),nrow = i,ncol = 1)
+        print(matriz)
+    }  
+   
+  }
+  write.csv(matriz,file = paste(ubicacion_efectos,archivoCategorizacion,sep ="/"),row.names = FALSE)
+ 
+  
+  # --- Valoracion --- #
+  Valoracion = "SELECT user_id as ID_usuario,
                 max(favorite_count) as Max_favoritos,
                 min(favorite_count) as Min_favoritos,
                 avg(favorite_count) as Promedio FROM aux"
   
-  aceptacionTweet = "SELECT  user_id as ID_usuario,
+  ValoracionTweet = "SELECT  user_id as ID_usuario,
                     max(favorite_count) as Max_favoritos,
                     text as Tweet FROM aux"
   
-  aceptacion = sqldf(aceptacion)
-  aceptacionTweet = sqldf(aceptacionTweet)
+  Valoracion = sqldf(Valoracion)
+  ValoracionTweet = sqldf(ValoracionTweet)
   
-  write.csv(aceptacion, file = paste(ubicacion_aceptacion,archivoAceptacion,sep="/" ),row.names = FALSE)
-  write.csv(aceptacionTweet, file = paste(ubicacion_aceptacion,archivoAceptacionTweet,sep="/" ),row.names = FALSE)
+  write.csv(Valoracion, file = paste(ubicacion_Valoracion,archivoValoracion,sep="/" ),row.names = FALSE)
+  write.csv(ValoracionTweet, file = paste(ubicacion_Valoracion,archivoValoracionTweet,sep="/" ),row.names = FALSE)
   #Ubiacion carpeta resultados generales
-  write.csv(aceptacion, file = paste(ubicacion_ResultadosGenerales,archivoAceptacion,sep="/" ),row.names = FALSE)
-  write.csv(aceptacionTweet, file = paste(ubicacion_ResultadosGenerales,archivoAceptacionTweet,sep="/" ),row.names = FALSE)
+  write.csv(Valoracion, file = paste(ubicacion_ResultadosGenerales,archivoValoracion,sep="/" ),row.names = FALSE)
+  write.csv(ValoracionTweet, file = paste(ubicacion_ResultadosGenerales,archivoValoracionTweet,sep="/" ),row.names = FALSE)
+  
+  # --- Muesta Total ---#
   
   # --- Viralizacion --- #
   viralizacionTweet = "SELECT user_id as ID_usuario,
@@ -524,10 +535,10 @@ while(i <= numArchivos)
   viralizacion = sqldf(viralizacion)
   viralizacionTweet = sqldf(viralizacionTweet)
   
-  #write.csv(viralizacion, file = paste(ubicacion_viralizacion,archivoViralizacion,sep="/" ),row.names = FALSE)
-  #write.csv(viralizacionTweet, file = paste(ubicacion_viralizacion,archivoViralizacionTweet,sep="/" ),row.names = FALSE)
+  write.csv(viralizacion, file = paste(ubicacion_viralizacion,archivoViralizacion,sep="/" ),row.names = FALSE)
+  write.csv(viralizacionTweet, file = paste(ubicacion_viralizacion,archivoViralizacionTweet,sep="/" ),row.names = FALSE)
   
-  # --- Caracter??sticas Tecnicas --- #
+  # --- Caracteristicas Tecnicas --- #
   # ---  + - x Caracteres  --- #
   cantidadCaracteres = "SELECT max(display_text_width) as Max_caracteres,
                         min(display_text_width) as Min_caracteres, 
@@ -538,7 +549,7 @@ while(i <= numArchivos)
   
   # --- Contenidos multimedia --- #
   
-  # ---  Categorizaci??n por dispositivo --- #
+  # ---  Categorizacion por dispositivo --- #
   consulta_dispositivos = "SELECT COUNT(source) Total FROM aux"
   dispositivos = sqldf(consulta_dispositivos)
   
@@ -581,9 +592,9 @@ while(i <= numArchivos)
   plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/ResultadosGenerales/PorcentajeDispositivosA.png")
   
   # --- Georeferencia --- #
-  georeferencia = "SELECT count(country) as Porcentaje_Location FROM aux "
+  georeferencia = "SELECT (count(distinct(location))-1) porcentaje FROM aux"
   
-  # ---  Ranking de los 5 lugares m??s mencionados --- #
+  # ---  Ranking de los 5 lugares mas mencionados --- #
   ranking_paises = "SELECT count(country) Cantidad, country as Paises
                     FROM aux WHERE Paises NOT LIKE ''
                     GROUP BY Paises 
@@ -613,6 +624,43 @@ while(i <= numArchivos)
   #Ubicacion resultados generales
   write.csv(porcentaje_georeferencia , file = paste(ubicacion_ResultadosGenerales,archivoGeoreferencia,sep = "/"),row.names = FALSE)
   write.csv(ranking_paises, file = paste(ubicacion_ResultadosGenerales,archivoRankingGeo,sep="/" ),row.names = FALSE)
+  
+  #---Categorizacion por genero---#
+  
+  total_filas = "SELECT count(user_id) total_filas FROM aux"
+  total_filas=sqldf(total_filas)
+  
+  genero = "SELECT sexo Sexo, count (sexo) Cantidad FROM aux
+            WHERE sexo = 'f' OR sexo = 'm' OR sexo ='na'
+            GROUP BY sexo
+            ORDER BY Cantidad DESC  
+            "
+  na = "SELECT count(sexo) as NA 
+        FROM aux
+        WHERE sexo LIKE 'na'"
+  na = sqldf(na)
+  
+  f = "SELECT count(sexo) as F
+       FROM aux WHERE sexo LIKE 'f' "
+  f = sqldf(f)
+  
+  m = "SELECT count(sexo) as M
+      FROM aux WHERE sexo LIKE 'm' "
+  m = sqldf(m)
+  
+  porcentaje_na = round((na/total_filas)*100,3)
+  porcentaje_f = round((f/total_filas)*100,3)
+  porcentaje_m = round((m/total_filas)*100,3)
+  
+  union_sexo = "SELECT * FROM porcentaje_na, porcentaje_f, porcentaje_m"
+  union_sexo = sqldf(union_sexo)
+  
+  write.csv(genero,file = paste(ubicacion_sexo,archivoGenero,sep = "/"),row.names=FALSE)
+  write.csv(union_sexo,file = paste(ubicacion_sexo,archivoUnionSexo,sep = "/"),row.names=FALSE)
+  #Ubicacion resultados generales
+  write.csv(genero,file = paste(ubicacion_ResultadosGenerales,archivoGenero,sep = "/"),row.names=FALSE)
+  write.csv(union_sexo,file = paste(ubicacion_ResultadosGenerales,archivoUnionSexo,sep = "/"),row.names=FALSE)
+  
   
   i = i + 1
   
