@@ -1,5 +1,5 @@
 
-#install.packages("dplyr")
+#install.packages("gsubfn")
 #install.packages("sqldf")
 #Actalizacion de paquetes 
 #update.packages()
@@ -14,6 +14,7 @@ library(tm)
 library(colorspace)
 library(plotly)
 library(sqldf)
+library(gsubfn)
 
 
 carpeta = "/Users/alfonsoopazo/Desktop/Observatorio/Manzanapp"
@@ -30,6 +31,7 @@ Sys.setenv("plotly_username"="observatorio2019")
 Sys.setenv("plotly_api_key"="BObHnm3fSEoIg5SCk3a2")
 
 if(dir.exists(paste(carpeta, "Resultados", sep = "/")))
+  ubicacion_resultados <-"/Users/alfonsoopazo/Desktop/Observatorio/Manzanapp/Resultados"
 {}else
 {
   dir.create(paste(carpeta, "Resultados", sep = "/"))
@@ -70,7 +72,6 @@ if(dir.exists(paste(carpeta, "Resultados", sep = "/")))
       dir.create(paste( ubicacion_resultados, "DeterminantesSemanticos", "Nube", sep = "/"))
       dir.create(paste( ubicacion_resultados, "DeterminantesSemanticos", "Bigrama", sep = "/"))
     }
-    
     # if de las carpetas COMUNIDADES 
     if((dir.exists(paste( ubicacion_resultados, "Comunidad","Referentes", sep = "/")))
        & (dir.exists(paste( ubicacion_resultados, "Comunidad", "Influenciadores", sep = "/")))
@@ -111,7 +112,6 @@ if(dir.exists(paste(carpeta, "Resultados", sep = "/")))
   }
 }
 
-
 i = 1
 numArchivos = nrow(nombres)
 
@@ -126,16 +126,16 @@ while(i <= numArchivos)
   
   #--- Arreglo de los tildes ---#
   consulta$text=gsub("<f1>","?",consulta$text)#ñ
-  consulta$text=gsub("<e1>","?",consulta$text)#a
-  consulta$text=gsub("<c1>","?",consulta$text)#A
-  consulta$text=gsub("<e9>","?",consulta$text)#e
-  consulta$text=gsub("<c9>","?",consulta$text)#E
-  consulta$text=gsub("<ed>","?",consulta$text)#i
-  consulta$text=gsub("<cd>","?",consulta$text)#I
-  consulta$text=gsub("<f3>","?",consulta$text)#o
-  consulta$text=gsub("<d3>","?",consulta$text)#O
-  consulta$text=gsub("<fa>","?",consulta$text)#u
-  consulta$text=gsub("<da>","?",consulta$text)#U
+  consulta$text=gsub("<e1>","á",consulta$text)#a
+  consulta$text=gsub("<c1>","Á",consulta$text)#A
+  consulta$text=gsub("<e9>","é",consulta$text)#e
+  consulta$text=gsub("<c9>","É",consulta$text)#E
+  consulta$text=gsub("<ed>","í",consulta$text)#i
+  consulta$text=gsub("<cd>","Í",consulta$text)#I
+  consulta$text=gsub("<f3>","ó",consulta$text)#o
+  consulta$text=gsub("<d3>","Ó",consulta$text)#O
+  consulta$text=gsub("<fa>","ú",consulta$text)#u
+  consulta$text=gsub("<da>","Ú",consulta$text)#U
   consulta$text=gsub("<40>","?",consulta$text)#@
   
   
@@ -153,8 +153,10 @@ while(i <= numArchivos)
   archivoRankingGeo = paste("ranking_georeferencia",nombreResultado,".csv")
   archivoFotos = paste("cantidad_fotos", nombreResultado,".csv")
   archivoUnionDispositivos = paste("consulta_union",nombreResultado,".csv")
+  archivoMovilizadores = paste("datos_movilizadores", nombreResultado, ".csv")
+
   
-  aux <- read.csv(archivo_temporal,header = TRUE,sep = ",",encoding = "UTF-7")
+  aux <- read.csv(archivo_temporal,header = TRUE,sep = ",",encoding = "UTF-8")
   aux <- as.data.frame(aux)
   
   temporal <- sqldf("SELECT created_at,screen_name,text FROM aux")
@@ -171,8 +173,6 @@ while(i <= numArchivos)
                       DESC')
   write.csv(histograma,file = paste(ubicacion_resultados,"Evolucion","Histograma","histogramax1dia.csv",sep = "/"),row.names=FALSE)
   write.csv(histograma,file = paste( ubicacion_resultados, "ResultadosGenerales","histogramax1diaA.csv",sep = "/"),row.names=FALSE)
-  
-  
   
   # --- Reproduccion, Produccion, Interaccion --- #
   consulta_total_datos = "SELECT COUNT(user_id) totalDatos FROM aux"
@@ -223,7 +223,7 @@ while(i <= numArchivos)
   N = total$totalDatos
   
   #Porcentaje para el grafico.
-  RIP = matrix(c(trunc((AA/N)*100*10^2)/10^2,trunc((NART/N)*100*10^2)/10^2,trunc((RT/N)*100*10^2)/10^2,"Interacci?n","Producci?n","Reproducci?n"),ncol = 2)
+  RIP = matrix(c(trunc((AA/N)*100*10^2)/10^2,trunc((NART/N)*100*10^2)/10^2,trunc((RT/N)*100*10^2)/10^2,"Interaccion","Produccion","Reproduccion"),ncol = 2)
   colnames(RIP) = c("Porcentaje","Tipo")
   RIP = as.data.frame(RIP)
   
@@ -322,36 +322,31 @@ while(i <= numArchivos)
   write.csv(influenciadores,file = paste( ubicacion_resultados, "Comunidad", "Influenciadores",archivoInfluenciadores,sep = "/"),row.names = FALSE)
   write.csv(influenciadores,file =  paste( ubicacion_resultados, "ResultadosGenerales",archivoInfluenciadores,sep = "/"),row.names = FALSE)
   
-  # --- Movilizadores --- #
-  archivoMovi = paste('resumen',nombreResultado,'.csv')
-  archivoRanking = paste('ranking',nombreResultado,'.csv')
+  # --- Movilizadores 2.0 ---#
   
-  filas = sqldf("SELECT COUNT(DISTINCT(status_id)) Total FROM aux")
-  total = filas$Total
+  #Cantidad que usan Hashtag
+  cantidad_hashtag <- "SELECT count(text) Cantidad_Hastags FROM aux WHERE text LIKE '%#%'"
+  cantidad_hashtag <- sqldf(cantidad_hashtag)
+  #Cantidad que NO usaN Hashtag
+  no_hashtag <- "SELECT count(text) NO_Hastags FROM aux WHERE text NOT LIKE '%#%'"
+  no_hashtag <- sqldf(no_hashtag)
   
-  all_words <- unlist(regmatches(aux$text, gregexpr(patHashtag, aux$text)))
-  all_words <- str_replace_all(all_words,'#','')
-  all_words <- as.data.frame(all_words)
+  #Porcentaje de los que usan Hashtag
+  H <- cantidad_hashtag$Cantidad_Hastags
+  TOTAL <- total_datos$totalDatos
   
-  hashtags <- sqldf('SELECT all_words Influenciadores, COUNT(all_words) Suma
-                    FROM all_words GROUP BY Influenciadores ORDER BY suma DESC')
-  hashtagx <- sqldf('SELECT * FROM hashtags WHERE Influenciadores NOT LIKE ""')
-  filashashtag = sqldf('SELECT COUNT(Influenciadores) Total FROM hashtagx')
-  totalhashtags = filashashtag$Total
-  porcentajeHashtag = trunc((totalhashtags/total)*100*10^2)/10^2
+  calculo <- (round((H/TOTAL),3)*100)
+  calculo <- as.data.frame(calculo)
+  colnames(calculo) <- c('Procentajes')
   
+  total_hashtag <- "SELECT * FROM cantidad_hashtag,no_hashtag,calculo "
+  total_hashtag <- sqldf(total_hashtag)
+  write.csv(total_hashtag, file = paste(ubicacion_resultados,"Comunidad","Movilizadores", archivoMovilizadores,sep = "/"), row.names = FALSE)
   
-  ranking = sqldf('SELECT Influenciadores, Suma FROM hashtagx LIMIT 55')
+  #Ranking Hashtag
+  ranking_hashtag  = "SELECT DISTINCT(text) FROM aux WHERE text LIKE '%#%'"
+  ranking_hashtag = sqldf(ranking_hashtag)
   
-  tabla = matrix(c(total,totalhashtags, porcentajeHashtag,
-                   'Total Filas','Total Hashtags','% Hashgtags'), ncol = 2)
-  colnames(tabla) = c('Valores','Datos')
-  tabla = as.data.frame(tabla)
-
-  try(write.csv(tabla, file = paste( ubicacion_resultados, "Comunidad", "Movilizadores",archivoMovi,sep = "/"),row.names=FALSE), silent = TRUE)
-  try(write.csv(ranking, file =paste( ubicacion_resultados, "Comunidad", "Movilizadores", archivoRanking, sep = "/"), row.names = FALSE), silent = TRUE)
-  try(write.csv(tabla, file =  paste( ubicacion_resultados, "ResultadosGenerales",archivoMovi,sep = "/"),row.names=FALSE), silent = TRUE)
-  try(write.csv(ranking, file =  paste( ubicacion_resultados, "ResultadosGenerales",archivoRanking, sep = "/"), row.names = FALSE), silent =TRUE)
   
   # --- Contenidos multimedia --- #
   consulta_ranking = "SELECT count(urls_url) as N_URL, urls_url URL 
