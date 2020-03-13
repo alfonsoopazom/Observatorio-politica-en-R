@@ -1,8 +1,8 @@
-
 #install.packages("gsubfn")
-#install.packages("sqldf")
+#install.packages("usethis")
 #Actalizacion de paquetes 
 #update.packages()
+#install_github("DFJL/SamplingUtil")
 
 library(readr)
 library(dplyr)#manejo de ficheros
@@ -15,7 +15,8 @@ library(colorspace)
 library(plotly)
 library(sqldf)
 library(gsubfn)
-
+library(devtools)
+library(SamplingUtil)
 
 carpeta = "/Users/alfonsoopazo/Desktop/Observatorio/Manzanapp"
 carpeta_base = paste(carpeta,"Bases",sep="/")
@@ -85,27 +86,25 @@ if(dir.exists(paste(carpeta, "Resultados", sep = "/")))
     
     # if de las carpetas CATEGORIZACION 
     if((dir.exists(paste( ubicacion_resultados, "Categorizacion", "Aceptacion", sep = "/")))
-       & (dir.exists(paste( ubicacion_resultados, "Categorizacion","Viralizacion", sep = "/"))))
+       & (dir.exists(paste( ubicacion_resultados, "Categorizacion","Viralizacion", sep = "/")))
+       & (dir.exists(paste( ubicacion_resultados, "Categorizacion","Muestra", sep = "/"))))
     {}else
     {
       dir.create(paste( ubicacion_resultados, "Categorizacion", "Aceptacion", sep = "/"))
       dir.create(paste( ubicacion_resultados, "Categorizacion","Viralizacion", sep = "/"))
+      dir.create(paste( ubicacion_resultados, "Categorizacion","Muestra", sep = "/"))
     }
     
     # if de las carpetas CARACTERISTICAS TECNICAS 
     if((dir.exists(paste( ubicacion_resultados, "CaracteristicasTecnicas","Caracteres", sep = "/")))
        & (dir.exists(paste( ubicacion_resultados, "CaracteristicasTecnicas","Multimedia", sep = "/")))
-       & (dir.exists(paste( ubicacion_resultados, "CaracteristicasTecnicas","Dispositivos", sep = "/")))
-       & (dir.exists(paste( ubicacion_resultados, "CaracteristicasTecnicas", "PorcentajeGeoreferencia", sep = "/")))
-       & (dir.exists(paste( ubicacion_resultados, "CaracteristicasTecnicas", "RankingGeoreferencia", sep = "/")))
-    )
+       & (dir.exists(paste( ubicacion_resultados, "CaracteristicasTecnicas","Dispositivos", sep = "/"))))
     {}else
     {
       dir.create(paste( ubicacion_resultados, "CaracteristicasTecnicas", "Caracteres", sep = "/"))
       dir.create(paste( ubicacion_resultados, "CaracteristicasTecnicas", "Multimedia", sep = "/"))
       dir.create(paste( ubicacion_resultados, "CaracteristicasTecnicas", "Dispositivos", sep = "/"))
-      dir.create(paste( ubicacion_resultados, "CaracteristicasTecnicas", "PorcentajeGeoreferencia", sep = "/"))
-      dir.create(paste( ubicacion_resultados, "CaracteristicasTecnicas", "RankingGeoreferencia", sep = "/"))
+     
       
       # Crear las subcarpetas de Caracteristicas tecnicas 
     }
@@ -270,8 +269,7 @@ while(i <= numArchivos)
   write.csv(nube, file = paste( ubicacion_resultados, "ResultadosGenerales","nubeA.csv",sep = "/"),row.names=FALSE)
   
   # --- Bigrama --- #
-  lol=aux %>%
-    
+    lol=aux %>%
     mutate(text = str_replace_all(text,pat, "")) %>%
     unnest_tokens(word, text, token="ngrams",n=2 ) %>%
     count(word, sort=TRUE) %>% 
@@ -287,7 +285,7 @@ while(i <= numArchivos)
   
   # --- Guardar Bigrama --- #
   
-  data_bigrama=aux %>%
+    data_bigrama=aux %>%
     mutate(text = str_replace_all(text,pat, "")) %>%
     unnest_tokens(word, text, token="ngrams",n=2 ) %>%
     count(word, sort=TRUE) %>% 
@@ -339,13 +337,14 @@ while(i <= numArchivos)
   calculo <- as.data.frame(calculo)
   colnames(calculo) <- c('Procentajes')
   
-  total_hashtag <- "SELECT * FROM cantidad_hashtag,no_hashtag,calculo "
+  total_hashtag <- "SELECT * FROM cantidad_hashtag,no_hashtag,calculo"
   total_hashtag <- sqldf(total_hashtag)
   write.csv(total_hashtag, file = paste(ubicacion_resultados,"Comunidad","Movilizadores", archivoMovilizadores,sep = "/"), row.names = FALSE)
   
   #Ranking Hashtag
   ranking_hashtag  = "SELECT DISTINCT(text) FROM aux WHERE text LIKE '%#%'"
   ranking_hashtag = sqldf(ranking_hashtag)
+  
   
   
   # --- Contenidos multimedia --- #
@@ -377,7 +376,21 @@ while(i <= numArchivos)
   
   # --- Efectos y exitos --- #
   # --- Categorizacion --- #
-  # --- Aceptacion --- #
+
+  if(total_datos>1000){
+    #Generacion de numeros aleatorios enteros positivos del 1 al 1000
+    #var = total_datos$totalDatos
+    #x<-sample(1:var)
+    #sort(x)
+    #x <- as.data.frame(x)
+    #print(x)
+    
+  }else
+  {
+    
+  }
+  
+    # --- Aceptacion --- #
   aceptacion = "SELECT user_id as ID_usuario,
                 max(favorite_count) as Max_favoritos,
                 min(favorite_count) as Min_favoritos,
@@ -389,8 +402,6 @@ while(i <= numArchivos)
                       
   try(aceptacion <- sqldf(aceptacion),silent = TRUE)
   try(aceptacionTweet <- sqldf(aceptacionTweet), silent = TRUE)
-  
-        
   
   write.csv(aceptacion, file = paste( ubicacion_resultados, "Categorizacion", "Aceptacion",archivoAceptacion,sep="/" ),row.names = FALSE)
   write.csv(aceptacionTweet, file = paste( ubicacion_resultados, "Categorizacion", "Aceptacion",archivoAceptacionTweet,sep="/" ),row.names = FALSE)
