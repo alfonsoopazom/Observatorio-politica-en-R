@@ -42,7 +42,7 @@ if(dir.exists(paste(carpeta, "Resultados", sep = "/")))
   #If para crear los directorios dentro de la carpeta Resultados
   if((dir.exists(paste( ubicacion_resultados, "Evolucion", sep = "/")))
      &(dir.exists(paste( ubicacion_resultados, "Comunidad", sep = "/")))
-     &(dir.exists(paste( ubicacion_resultados, "Categorizacion", sep = "/")))
+     &(dir.exists(paste( ubicacion_resultados, "EfectosyExitos", sep = "/")))
      &(dir.exists(paste( ubicacion_resultados, "CaracteristicasTecnicas", sep = "/")))
      &(dir.exists(paste( ubicacion_resultados, "DeterminantesSemanticos", sep = "/")))
      &(dir.exists(paste( ubicacion_resultados, "ResultadosGenerales", sep = "/"))))
@@ -50,7 +50,7 @@ if(dir.exists(paste(carpeta, "Resultados", sep = "/")))
   {
     dir.create(paste( ubicacion_resultados, "Evolucion", sep = "/"))
     dir.create(paste( ubicacion_resultados, "Comunidad", sep = "/"))
-    dir.create(paste( ubicacion_resultados, "Categorizacion", sep = "/"))
+    dir.create(paste( ubicacion_resultados, "EfectosyExitos", sep = "/"))
     dir.create(paste( ubicacion_resultados, "CaracteristicasTecnicas", sep = "/"))
     dir.create(paste( ubicacion_resultados, "DeterminantesSemanticos", sep = "/"))
     dir.create(paste( ubicacion_resultados, "ResultadosGenerales", sep = "/"))
@@ -84,15 +84,15 @@ if(dir.exists(paste(carpeta, "Resultados", sep = "/")))
       dir.create(paste( ubicacion_resultados, "Comunidad", "Movilizadores", sep = "/"))
     }
     
-    # if de las carpetas CATEGORIZACION 
-    if((dir.exists(paste( ubicacion_resultados, "Categorizacion", "Aceptacion", sep = "/")))
-       & (dir.exists(paste( ubicacion_resultados, "Categorizacion","Viralizacion", sep = "/")))
-       & (dir.exists(paste( ubicacion_resultados, "Categorizacion","Muestra", sep = "/"))))
+    # if de las carpetas EfectosyExitos 
+    if((dir.exists(paste( ubicacion_resultados, "EfectosyExitos", "Aceptacion", sep = "/")))
+       & (dir.exists(paste( ubicacion_resultados, "EfectosyExitos","Viralizacion", sep = "/")))
+       & (dir.exists(paste( ubicacion_resultados, "EfectosyExitos","Muestra", sep = "/"))))
     {}else
     {
-      dir.create(paste( ubicacion_resultados, "Categorizacion", "Aceptacion", sep = "/"))
-      dir.create(paste( ubicacion_resultados, "Categorizacion","Viralizacion", sep = "/"))
-      dir.create(paste( ubicacion_resultados, "Categorizacion","Muestra", sep = "/"))
+      dir.create(paste( ubicacion_resultados, "EfectosyExitos", "Aceptacion", sep = "/"))
+      dir.create(paste( ubicacion_resultados, "EfectosyExitos","Viralizacion", sep = "/"))
+      dir.create(paste( ubicacion_resultados, "EfectosyExitos","Muestra", sep = "/"))
     }
     
     # if de las carpetas CARACTERISTICAS TECNICAS 
@@ -153,6 +153,7 @@ while(i <= numArchivos)
   archivoFotos = paste("cantidad_fotos", nombreResultado,".csv")
   archivoUnionDispositivos = paste("consulta_union",nombreResultado,".csv")
   archivoMovilizadores = paste("datos_movilizadores", nombreResultado, ".csv")
+  archivoMuestra = paste("muestra",nombreResultado,".csv")
 
   
   aux <- read.csv(archivo_temporal,header = TRUE,sep = ",",encoding = "UTF-8")
@@ -342,23 +343,21 @@ while(i <= numArchivos)
   write.csv(total_hashtag, file = paste(ubicacion_resultados,"Comunidad","Movilizadores", archivoMovilizadores,sep = "/"), row.names = FALSE)
   
   #Ranking Hashtag
-  ranking_hashtag  = "SELECT DISTINCT(text) FROM aux WHERE text LIKE '%#%'"
-  ranking_hashtag = sqldf(ranking_hashtag)
-  
-  
+  ranking_hashtag  <- "SELECT DISTINCT(text) FROM aux WHERE text LIKE '%#%'"
+  ranking_hashtag <- sqldf(ranking_hashtag)
   
   # --- Contenidos multimedia --- #
-  consulta_ranking = "SELECT count(urls_url) as N_URL, urls_url URL 
+  consulta_ranking <- "SELECT count(urls_url) as N_URL, urls_url URL 
                         FROM aux
                         GROUP BY urls_url
                         ORDER BY N_URL DESC
                         LIMIT 10"
   
-  columnas_link = "SELECT count(distinct(urls_url)) as Porcentaje FROM aux"
+  columnas_link <-"SELECT count(distinct(urls_url)) as Porcentaje FROM aux"
   
-  total_filas =  "SELECT count(user_id)  FROM aux"
+  total_filas <-"SELECT count(user_id)  FROM aux"
   
-  cantidad_fotos = "SELECT COUNT(media_url) as '% de fotos' FROM aux"
+  cantidad_fotos <-"SELECT COUNT(media_url) as '% de fotos' FROM aux"
   
   ranking = sqldf(consulta_ranking)
   links= sqldf(columnas_link)
@@ -375,46 +374,51 @@ while(i <= numArchivos)
   write.csv(fotos, file= paste( ubicacion_resultados, "ResultadosGenerales",archivoFotos,sep="/"),row.names = FALSE)
   
   # --- Efectos y exitos --- #
-  # --- Categorizacion --- #
-
-  if(total_datos>1000){
-    #Generacion de numeros aleatorios enteros positivos del 1 al 1000
-    #var = total_datos$totalDatos
-    #x<-sample(1:var)
-    #sort(x)
-    #x <- as.data.frame(x)
-    #print(x)
+  # --- EfectosyExitos - Muestra --- #
+  for(i in 1:length(nombres[,1])){
     
-  }else
-  {
+    muestra <- sqldf('select "screen_name","user_id","status_id","text", "retweet_text","is_retweet"  from 	consulta ')
+    x <-sample(1:length(consulta[,1]),1000,replace = FALSE)
+    x <- as.data.frame(x)
     
+    if(length(muestra[,1])>=1000)
+    {
+      muestra<-muestra[x[,1],]
+      archivo_final<-"/Users/alfonsoopazo/Desktop/Observatorio/Manzanapp/Resultados/EfectosyExitos/Muestra"
+      write.csv(muestra,file = paste(archivo_final,nombres$nombres[i],sep = "/"),row.names = FALSE)
+      
+    }else{
+      muestra <- muestra[1:length(muestra[,1]),]
+      archivo_final<-"/Users/alfonsoopazo/Desktop/Observatorio/Manzanapp/Resultados/EfectosyExitos/Muestra"
+      write.csv(muestra,file = paste(archivo_final,nombres$nombres[i],sep = "/"),row.names = FALSE)
+    }
   }
   
-    # --- Aceptacion --- #
-  aceptacion = "SELECT user_id as ID_usuario,
+  # --- Aceptacion --- #
+  aceptacion <- "SELECT user_id as ID_usuario,
                 max(favorite_count) as Max_favoritos,
                 min(favorite_count) as Min_favoritos,
                 avg(favorite_count) as Promedio FROM aux"
                 
-  aceptacionTweet = "SELECT  user_id as ID_usuario,
+  aceptacionTweet <- "SELECT  user_id as ID_usuario,
                       max(favorite_count) as Max_favoritos,
                       text as Tweet FROM aux"
                       
   try(aceptacion <- sqldf(aceptacion),silent = TRUE)
   try(aceptacionTweet <- sqldf(aceptacionTweet), silent = TRUE)
   
-  write.csv(aceptacion, file = paste( ubicacion_resultados, "Categorizacion", "Aceptacion",archivoAceptacion,sep="/" ),row.names = FALSE)
-  write.csv(aceptacionTweet, file = paste( ubicacion_resultados, "Categorizacion", "Aceptacion",archivoAceptacionTweet,sep="/" ),row.names = FALSE)
+  write.csv(aceptacion, file = paste( ubicacion_resultados, "EfectosyExitos", "Aceptacion",archivoAceptacion,sep="/" ),row.names = FALSE)
+  write.csv(aceptacionTweet, file = paste( ubicacion_resultados, "EfectosyExitos", "Aceptacion",archivoAceptacionTweet,sep="/" ),row.names = FALSE)
   write.csv(aceptacion, file =  paste( ubicacion_resultados, "ResultadosGenerales",archivoAceptacion,sep="/" ),row.names = FALSE)
   write.csv(aceptacionTweet, file =  paste( ubicacion_resultados, "ResultadosGenerales",archivoAceptacionTweet,sep="/" ),row.names = FALSE)
   
   # --- Viralizacion --- #
-  viralizacionTweet = "SELECT user_id as ID_usuario,
+  viralizacionTweet <- "SELECT user_id as ID_usuario,
                         max(retweet_count) as Max_retweet,
                         text as Tweet
                         FROM aux"
                         
-  viralizacion = "SELECT user_id as ID_usuario,
+  viralizacion <- "SELECT user_id as ID_usuario,
                   max(retweet_count) as Max_retweet,
                   min(retweet_count) as Min_retweet,
                   avg(retweet_count) as Promedio
@@ -423,38 +427,38 @@ while(i <= numArchivos)
   try(viralizacion <- sqldf(viralizacion), silent = TRUE)
   try(viralizacionTweet <- sqldf(viralizacionTweet), silent = TRUE)
   
-  write.csv(viralizacion, file = paste( ubicacion_resultados, "Categorizacion","Viralizacion",archivoViralizacion,sep="/" ),row.names = FALSE)
-  write.csv(viralizacionTweet, file = paste( ubicacion_resultados, "Categorizacion","Viralizacion",archivoViralizacionTweet,sep="/" ),row.names = FALSE)
+  write.csv(viralizacion, file = paste( ubicacion_resultados, "EfectosyExitos","Viralizacion",archivoViralizacion,sep="/" ),row.names = FALSE)
+  write.csv(viralizacionTweet, file = paste( ubicacion_resultados, "EfectosyExitos","Viralizacion",archivoViralizacionTweet,sep="/" ),row.names = FALSE)
   write.csv(viralizacion, file =  paste( ubicacion_resultados, "ResultadosGenerales",archivoViralizacion,sep="/" ),row.names = FALSE)
   write.csv(viralizacionTweet, file =  paste( ubicacion_resultados, "ResultadosGenerales",archivoViralizacionTweet,sep="/" ),row.names = FALSE)
   
   # --- Caracteristicas Tecnicas --- #
   # ---  + - x Caracteres  --- #
-  cantidadCaracteres = "SELECT max(display_text_width) as Max_caracteres,
+  cantidadCaracteres <- "SELECT max(display_text_width) as Max_caracteres,
                           min(display_text_width) as Min_caracteres, 
                           avg(display_text_width) as Promedio FROM aux"
-  cantidadCaracteres = sqldf(cantidadCaracteres)
+  cantidadCaracteres <- sqldf(cantidadCaracteres)
   
   write.csv(cantidadCaracteres, file = paste( ubicacion_resultados, "CaracteristicasTecnicas", "Caracteres",archivoCaracteres,sep="/"),row.names = FALSE)
   write.csv(cantidadCaracteres, file = paste( ubicacion_resultados, "ResultadosGenerales",archivoCaracteres,sep="/"),row.names = FALSE)
   
   # --- Contenidos multimedia --- #
   
-  # ---  Categorizacion por dispositivo --- #
-  consulta_dispositivos = "SELECT COUNT(source) Total FROM aux"
-  dispositivos = sqldf(consulta_dispositivos)
+  # ---  EfectosyExitos por dispositivo --- #
+  consulta_dispositivos <- "SELECT COUNT(source) Total FROM aux"
+  dispositivos <- sqldf(consulta_dispositivos)
   
-  dispositivos_android = "SELECT COUNT(source) Androids FROM aux WHERE source LIKE '%Android'"
-  androids = sqldf(dispositivos_android)
+  dispositivos_android <- "SELECT COUNT(source) Androids FROM aux WHERE source LIKE '%Android'"
+  androids <- sqldf(dispositivos_android)
   
-  consulta_iphone = "SELECT COUNT(source) Iphone FROM aux WHERE source LIKE '%iPhone'"
-  iphone = sqldf(consulta_iphone)
+  consulta_iphone <- "SELECT COUNT(source) Iphone FROM aux WHERE source LIKE '%iPhone'"
+  iphone <- sqldf(consulta_iphone)
   
-  consulta_web = "SELECT COUNT(source) Web FROM aux WHERE source LIKE '%Web%'"
-  web = sqldf(consulta_web)
+  consulta_web <- "SELECT COUNT(source) Web FROM aux WHERE source LIKE '%Web%'"
+  web <- sqldf(consulta_web)
   
-  consulta_otros = "SELECT COUNT(source) Otros FROM aux WHERE source NOT LIKE '%Android' AND source NOT LIKE '%iPhone' AND source NOT LIKE '%Web%'"
-  otros = sqldf(consulta_otros)
+  consulta_otros <- "SELECT COUNT(source) Otros FROM aux WHERE source NOT LIKE '%Android' AND source NOT LIKE '%iPhone' AND source NOT LIKE '%Web%'"
+  otros <- sqldf(consulta_otros)
   
   consulta_union = "SELECT * FROM androids, iphone, web, otros, dispositivos"
   consulta_union = sqldf(consulta_union)
