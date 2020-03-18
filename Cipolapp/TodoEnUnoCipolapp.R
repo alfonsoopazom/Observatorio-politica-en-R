@@ -429,21 +429,6 @@ while(i <= numArchivos)
   # --- Efectos y exitos --- #
   # --- Categorizacion --- #
   
-  consultaCategorizacion <- read.csv(archivo_temporal,header = TRUE,sep = ",",encoding = "UTF-8")
-  respuesta <- sqldf('select "screen_name","user_id","status_id","text", "retweet_text","is_retweet"  from 	consultaCategorizacion ')
-  
-  if(length(respuesta[,1])>=1000)
-  {
-    respuesta <- respuesta[1:1000,]
-    archivo_final<-"/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/Efectos/Categorizacion"
-    write.csv(respuesta,file = paste(archivo_final,nombres$nombres[i],sep = "/"),row.names = FALSE)
-    
-  }else{
-    respuesta <- respuesta[1:length(respuesta[,1]),]
-    archivo_final<-"/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/Efectos/Categorizacion"
-    write.csv(respuesta,file = paste(archivo_final,nombres$nombres[i],sep = "/"),row.names = FALSE)
-  }
-  
   # --- Valoracion --- #
   Valoracion <- "SELECT user_id as ID_usuario,
                 max(favorite_count) as Max_favoritos,
@@ -463,7 +448,28 @@ while(i <= numArchivos)
   write.csv(Valoracion, file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoValoracion,sep="/" ),row.names = FALSE)
   write.csv(ValoracionTweet, file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoValoracionTweet,sep="/" ),row.names = FALSE)
   
-  # --- Muesta Total ---#
+  # --- Muesta ---#
+  for(i in 1:length(nombres[,1])){
+    
+    archivo <-read.csv(archivo_temporal,header = TRUE,sep = ",",encoding = "UTF-8")
+    muestra <- sqldf('select "screen_name","user_id","status_id","text", "retweet_text","is_retweet"  from 	consulta ')
+    
+    x <-sample(1:length(archivo[,1]),1000, replace = TRUE)
+    x <- as.data.frame(x)
+    
+    
+    if(length(muestra[,1])>=1000)
+    {
+      muestra<-muestra[x[,1],]
+      archivo_final<-"/Users/alfonsoopazo/Desktop/Observatorio/Muestra/Resultados"
+      write.csv(muestra,file = paste(archivo_final,nombres$nombres[i],sep = "/"),row.names = FALSE)
+      
+    }else{
+      muestra <- muestra[1:length(archivo[,1]),]
+      archivo_final<-"/Users/alfonsoopazo/Desktop/Observatorio/Muestra/Resultados"
+      write.csv(muestra,file = paste(archivo_final,nombres$nombres[i],sep = "/"),row.names = FALSE)
+    }
+  }
   
   # --- Viralizacion --- #
   viralizacionTweet <- "SELECT user_id as ID_usuario,
@@ -546,9 +552,9 @@ while(i <= numArchivos)
                     ORDER BY Cantidad DESC
                     LIMIT 10"
                       
-  georeferencia = sqldf(georeferencia)
+  try(georeferencia <- sqldf(georeferencia), silent = TRUE)
   porcentaje_georeferencia = round((georeferencia/total_filas)*100,2)
-  ranking_paises = sqldf(ranking_paises)
+  try(ranking_paises <- sqldf(ranking_paises), silent = TRUE)
 
   # --- Grafico Ranking por paises --- #
   
@@ -561,7 +567,7 @@ while(i <= numArchivos)
     layout(title ="Ranking de paises", yaxis = list(title = 'Cantidad'), xaxis = list(title='Paises'))
   
   #Ruta de salida de la imagen
-  plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/CaracteristicasTecnicas/RankingPaises.png")
+  plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/CaracteristicasTecnicas/RankingGeoreferencia/RankingPaises.png")
   plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/ResultadosGenerales/RankingPaisesA.png")
   
   
