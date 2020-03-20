@@ -22,7 +22,7 @@ nombres = as.data.frame(nombres)
 
 pat ="(RT|via)(((?:\\b\\W*|)@\\w+)+)|,|:|(https|http)://t.co/[A-Za-z\\d]+|&amp;|http\\w*|@\\w+|(\\w+\\.|)\\w+\\.\\w+(/\\w+)*"
 patref ="@[A-Za-z0-9]*[^\\s:_.<]"
-patHashtag="#[A-Za-z0-9????]*"
+patHashtag="#[A-Za-z0-9áéíóú]*"
 
 Sys.setenv("plotly_username"="observatorio2019")
 Sys.setenv("plotly_api_key"="BObHnm3fSEoIg5SCk3a2")
@@ -86,12 +86,12 @@ if(dir.exists(paste(carpeta, "Resultados", sep = "/")))
     # if de las carpetas EFECTOS Y EXITOS
     if((dir.exists(paste(carpeta,"Resultados","Efectos","Valoracion", sep = "/")))
        & (dir.exists(paste(carpeta,"Resultados","Efectos","Categorizacion", sep = "/")))
-       & (dir.exists(paste(carpeta,"Resultados","Efectos","MuestraTotal", sep = "/"))))
+       & (dir.exists(paste(carpeta,"Resultados","Efectos","Muestra", sep = "/"))))
     {}else
     {
       dir.create(paste(carpeta,"Resultados","Efectos", "Valoracion", sep = "/"))
       dir.create(paste(carpeta,"Resultados","Efectos", "Categorizacion", sep = "/"))
-      dir.create(paste(carpeta,"Resultados","Efectos", "MuestraTotal", sep = "/"))
+      dir.create(paste(carpeta,"Resultados","Efectos", "Muestra", sep = "/"))
       
     }
     # if de las carpetas CARACTERISTICAS TECNICAS 
@@ -126,18 +126,18 @@ while(i <= numArchivos)
   consulta <-read.csv(archivo_temporal,header = TRUE,sep = ",",encoding = "UTF-8")
   
   #--- Arreglo de los tildes ---#
-  consulta$text=gsub("<f1>","?",consulta$text)#ñ
-  consulta$text=gsub("<e1>","?",consulta$text)#a
-  consulta$text=gsub("<c1>","?",consulta$text)#A
-  consulta$text=gsub("<e9>","?",consulta$text)#e
-  consulta$text=gsub("<c9>","?",consulta$text)#E
-  consulta$text=gsub("<ed>","?",consulta$text)#i
-  consulta$text=gsub("<cd>","?",consulta$text)#I
-  consulta$text=gsub("<f3>","?",consulta$text)#o
-  consulta$text=gsub("<d3>","?",consulta$text)#O
-  consulta$text=gsub("<fa>","?",consulta$text)#u
-  consulta$text=gsub("<da>","?",consulta$text)#U
-  consulta$text=gsub("<40>","?",consulta$text)#@
+  consulta$text=gsub("<f1>","ñ",consulta$text)#ñ
+  consulta$text=gsub("<e1>","á",consulta$text)#a
+  consulta$text=gsub("<c1>","Á",consulta$text)#A
+  consulta$text=gsub("<e9>","é",consulta$text)#e
+  consulta$text=gsub("<c9>","É",consulta$text)#E
+  consulta$text=gsub("<ed>","í",consulta$text)#i
+  consulta$text=gsub("<cd>","Í",consulta$text)#I
+  consulta$text=gsub("<f3>","ó",consulta$text)#o
+  consulta$text=gsub("<d3>","Ó",consulta$text)#O
+  consulta$text=gsub("<fa>","ú",consulta$text)#u
+  consulta$text=gsub("<da>","Ú",consulta$text)#U
+  consulta$text=gsub("<40>","@",consulta$text)#@
   
   
   #Nombre Archivos csv 
@@ -163,19 +163,19 @@ while(i <= numArchivos)
   aux <- read.csv(archivo_temporal,header = TRUE,sep = ",",encoding = "UTF-8")
   aux <- as.data.frame(aux)
   
-  
-  #Total del filas de la base
   total_filas <- "SELECT count(user_id) total_filas FROM aux"
-  total_filas <- sqldf(total_filas)
+  try(total_filas <- sqldf(total_filas), silent = TRUE)
   
   # --- Evolucion y Sentido --- #
   # --- Histograma --- #
-  histograma <- sqldf('select  substr(created_at,1,10) FECHA,count(substr(created_at,1,10)) CANTIDAD  
-                       from aux group by substr(created_at,1,10) 
-                       ORDER BY substr(created_at,1,10) DESC')
+  histograma <- sqldf('SELECT  SUBSTR(created_at,1,10) FECHA,COUNT(SUBSTR(created_at,1,10)) CANTIDAD  
+                       FROM aux 
+                       GROUP BY substr(created_at,1,10) 
+                       ORDER BY substr(created_at,1,10) 
+                       DESC')
   
-  try(write.csv(histograma,file = paste(carpeta,"Resultados","Evolucion","Histograma","histogramax1dia.csv",sep = "/"),row.names=FALSE),silent = TRUE)
-  try(write.csv(histograma,file = paste(carpeta,"Resultados", "ResultadosGenerales","histogramax1diaA.csv",sep = "/"),row.names=FALSE),silent = TRUE)
+  try(write.csv(histograma,file <- paste(carpeta,"Resultados","Evolucion","Histograma","histogramax1dia.csv",sep = "/"),row.names=FALSE),silent = TRUE)
+  try(write.csv(histograma,file <- paste(carpeta,"Resultados", "ResultadosGenerales","histogramax1diaA.csv",sep = "/"),row.names=FALSE),silent = TRUE)
   
   # --- Reproduccion, Produccion, Interaccion --- #
   consulta_total_datos = "SELECT COUNT(user_id) totalDatos FROM aux"
@@ -214,7 +214,7 @@ while(i <= numArchivos)
   # ===================================================== #
   
   # Grafico Torta #
-  consulta_total = "SELECT * FROM total_AA, total_NART, total_RT, total_RTAI, total_RTNAI, total_datos"
+  consulta_total <- "SELECT * FROM total_AA, total_NART, total_RT, total_RTAI, total_RTNAI, total_datos"
   try(total <- sqldf(consulta_total),silent = TRUE)
   
   #Valores para el grafico de Torta.
@@ -237,20 +237,19 @@ while(i <= numArchivos)
            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
   
-  try(plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/Evolucion/ReproduccionInteraccionProduccion.png"),silent = TRUE)
-  # Ubicacion resultados generales
-  try(plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/ResultadosGenerales/ReproduccionInteraccionProduccionA.png"),silent = TRUE)
+  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"Resultados","Evolucion","ReproduccionInteraccionProduccion.png",sep="/"),silent = TRUE))
+  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"Resultados", "ResultadosGenerales","ReproduccionInteraccionProduccion.png",sep="/"),silent = TRUE))
   
   # --- Determinantes Semanticos --- #
   # --- Nube --- # Nueva nube
   conectores<-read.csv(paste(carpeta,"conectores.csv",sep = "/"), header = FALSE)
-  tempora_nube<-sqldf("select text from consulta")
+  tempora_nube<-sqldf("SELECT text FROM consulta")
   tempora_nube<-mutate(tempora_nube,text = str_replace_all(text,pat, ""))
   lis<-unnest_tokens(tempora_nube,word, text, token="ngrams",n=1 )
   nube<-count(lis,word,sort=TRUE)
   nube<-as.data.frame(nube)
   conectores<-as.data.frame(conectores)
-  consulta_conectores <- paste0(paste("select * from nube where word!=",conectores$V1[1],sep = "'" ),"'")
+  consulta_conectores <- paste0(paste("SELECT * FROM nube WHERE word!=",conectores$V1[1],sep = "'" ),"'")
   
   for(j in 2:length(conectores[,1]))
   {
@@ -263,7 +262,7 @@ while(i <= numArchivos)
   
   # --- Bigrama --- #nuevo
   
-  consulta <-sqldf("select text from consulta")
+  consulta <-sqldf("SELECT text FROM consulta")
   lol=consulta %>%
     
     mutate(text = str_replace_all(text,pat, "")) %>%
@@ -298,21 +297,22 @@ while(i <= numArchivos)
   
   # --- Comunidades --- #
   # --- Referentes --- #
-  referentes = "SELECT Distinct(mentions_screen_name) as Menciones FROM aux"
-  referentes = sqldf(referentes)
+  referentes <- "SELECT DISTINCT(mentions_screen_name) as Menciones FROM aux"
+  referentes <- sqldf(referentes)
   
   write.csv(referentes, file = paste(carpeta,"Resultados","Comunidad","Referentes",archivoReferentes,sep = "/"),row.names=FALSE)
   write.csv(referentes, file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoReferentes,sep = "/"),row.names=FALSE)
   
   # --- Influenciadores --- #
-  influenciadores = "Select retweet_screen_name USUARIO,count(retweet_screen_name) CANTIDAD from aux 
-                    where is_retweet 
-                    group by retweet_screen_name 
-                    order by 
-                    count(retweet_screen_name) desc"
-  influenciadores = sqldf(influenciadores)
-  write.csv(influenciadores,file = paste(carpeta,"Resultados","Comunidad","Influenciadores",archivoInfluenciadores,sep = "/"),row.names = FALSE)
-  write.csv(influenciadores,file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoInfluenciadores,sep = "/"),row.names = FALSE)
+  influenciadores <- "SELECT retweet_screen_name USUARIO,count(retweet_screen_name) CANTIDAD from aux 
+                      WHERE is_retweet 
+                      GROUP BY retweet_screen_name 
+                      ORDER BY 
+                      COUNT(retweet_screen_name) DESC"
+  try(influenciadores <- sqldf(influenciadores), silent = TRUE)
+  
+  write.csv(influenciadores,file <- paste(carpeta,"Resultados","Comunidad","Influenciadores",archivoInfluenciadores,sep = "/"),row.names = FALSE)
+  write.csv(influenciadores,file <- paste(carpeta,"Resultados", "ResultadosGenerales",archivoInfluenciadores,sep = "/"),row.names = FALSE)
   
   # --- Movilizadores --- #
   archivoMovi = paste('resumen',nombreResultado,'.csv')
@@ -353,8 +353,8 @@ while(i <= numArchivos)
   
   p <- plot_ly ( ranking, y = c(S),x = c(I), type = "bar", name = "Ranking Hashtag")%>%
     layout(title ="Ranking de Hashtag", yaxis = list(title = 'Cantidad'), xaxis = list(title='Hashtag'))
-  try(plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/Comunidad/Movilizadores/RankingHashtag.png"))
-  try(plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/ResultadosGenerales/RankingHashtagA.png"))
+  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"Comunidad","Movilizadores","RankingHashtag.png",sep = "/")),silent = TRUE)
+  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"ResultadosGenerales","RankingHashtagA.png")),silent =TRUE)
   
   write.csv(tabla, file = paste(carpeta,"Resultados","Comunidad","Movilizadores",archivoMovi,sep = "/"),row.names=FALSE)
   write.csv(ranking, file = paste(carpeta,"Resultados","Comunidad","Movilizadores", archivoRanking, sep = "/"), row.names = FALSE)
@@ -385,17 +385,17 @@ while(i <= numArchivos)
   
   # --- Contenidos multimedia --- #
   
-  media = "SELECT urls_expanded_url Media, count(urls_expanded_url) Cantidad FROM aux WHERE Media NOT LIKE ' '"
+  media <- "SELECT urls_expanded_url Media, COUNT(urls_expanded_url) Cantidad FROM aux WHERE Media NOT LIKE ' '"
  
-  ranking_url = "SELECT urls_url url, count(urls_url) cantidad FROM aux 
+  ranking_url <- "SELECT urls_url url, count(urls_url) cantidad FROM aux 
                   WHERE urls_url NOT LIKE ''
                   GROUP BY urls_url
                   ORDER BY cantidad DESC
                   LIMIT 5"
   
-  columnas_link = "SELECT (count(distinct(urls_url))-1) as Porcentaje FROM aux"
+  columnas_link <- "SELECT (count(distinct(urls_url))-1) as Porcentaje FROM aux"
   
-  cantidad_fotos = "SELECT count(media_type) porcentaje_fotos FROM aux WHERE  media_type != ''"
+  cantidad_fotos <- "SELECT count(media_type) porcentaje_fotos FROM aux WHERE  media_type != ''"
   
   media =sqldf(media)
   ranking_url = sqldf(ranking_url)
@@ -414,16 +414,15 @@ while(i <= numArchivos)
   
   # --- Grafico Ranking URLS --- #
    
-  ranking_url = as.data.frame(ranking_url)
-  
-  N = ranking_url$url
-  U = ranking_url$cantidad
+  ranking_url <- as.data.frame(ranking_url)
+  N <- ranking_url$url
+  U <- ranking_url$cantidad
   
   p <- plot_ly ( ranking_url, y = c(U),x = c(N), type = "bar", name = "Ranking URL")%>%
     layout(title ="Ranking de URL", yaxis = list(title = 'Urls'), xaxis = list(title='Cantidad'))
-  #Ruta de salida de la imagen
-  try(plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/CaracteristicasTecnicas/Multimedia/RankingUrl.png"))
-  try(plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/ResultadosGenerales/RankingUrlA.png"))
+
+  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"CaracteristicasTecnicas","Multimedia","RankingUrl.png",sep = "/")), silent = TRUE)
+  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"ResultadosGenerales","RankingUrlA.png", sep = "/")),silent = TRUE)
   
   
   # --- Efectos y exitos --- #
@@ -431,13 +430,13 @@ while(i <= numArchivos)
   
   # --- Valoracion --- #
   Valoracion <- "SELECT user_id as ID_usuario,
-                max(favorite_count) as Max_favoritos,
-                min(favorite_count) as Min_favoritos,
-                avg(favorite_count) as Promedio FROM aux"
+                MAX(favorite_count) as Max_favoritos,
+                MIN(favorite_count) as Min_favoritos,
+                AVG(favorite_count) as Promedio FROM aux"
   
   ValoracionTweet <- "SELECT  user_id as ID_usuario,
-                    max(favorite_count) as Max_favoritos,
-                    text as Tweet FROM aux"
+                      MAX(favorite_count) as Max_favoritos,
+                      text as Tweet FROM aux"
   
   Valoracion <- sqldf(Valoracion)
   ValoracionTweet <- sqldf(ValoracionTweet)
@@ -452,7 +451,7 @@ while(i <= numArchivos)
   for(i in 1:length(nombres[,1])){
     
     archivo <-read.csv(archivo_temporal,header = TRUE,sep = ",",encoding = "UTF-8")
-    muestra <- sqldf('select "screen_name","user_id","status_id","text", "retweet_text","is_retweet"  from 	consulta ')
+    muestra <- sqldf('SELECT "screen_name","user_id","status_id","text", "retweet_text","is_retweet"  FROM 	consulta ')
     
     x <-sample(1:length(archivo[,1]),1000, replace = TRUE)
     x <- as.data.frame(x)
@@ -461,27 +460,27 @@ while(i <= numArchivos)
     if(length(muestra[,1])>=1000)
     {
       muestra<-muestra[x[,1],]
-      archivo_final<-"/Users/alfonsoopazo/Desktop/Observatorio/Muestra/Resultados"
+      archivo_final<- paste(carpeta,"Resultados","Efectos", "Muestra", sep = "/")
       write.csv(muestra,file = paste(archivo_final,nombres$nombres[i],sep = "/"),row.names = FALSE)
       
     }else{
       muestra <- muestra[1:length(archivo[,1]),]
-      archivo_final<-"/Users/alfonsoopazo/Desktop/Observatorio/Muestra/Resultados"
+      archivo_final<- paste(carpeta,"Resultados","Efectos", "Muestra", sep = "/")
       write.csv(muestra,file = paste(archivo_final,nombres$nombres[i],sep = "/"),row.names = FALSE)
     }
   }
   
   # --- Viralizacion --- #
   viralizacionTweet <- "SELECT user_id as ID_usuario,
-                      max(retweet_count) as Max_retweet,
-                      text as Tweet
-                      FROM aux"
-  
+                        MAX(retweet_count) as Max_retweet,
+                        text as Tweet
+                        FROM aux"
+    
   
   viralizacion <- "SELECT user_id as ID_usuario,
-                  max(retweet_count) as Max_retweet,
-                  min(retweet_count) as Min_retweet,
-                  avg(retweet_count) as Promedio
+                  MAX(retweet_count) as Max_retweet,
+                  MIN(retweet_count) as Min_retweet,
+                  AVG(retweet_count) as Promedio
                   FROM aux"
   
   viralizacion <- sqldf(viralizacion)
@@ -492,33 +491,36 @@ while(i <= numArchivos)
   
   # --- Caracteristicas Tecnicas --- #
   # ---  + - x Caracteres  --- #
-  cantidadCaracteres = "SELECT max(display_text_width) as Max_caracteres,
+  cantidadCaracteres <- "SELECT max(display_text_width) as Max_caracteres,
                         min(display_text_width) as Min_caracteres, 
                         avg(display_text_width) as Promedio FROM aux"
-  cantidadCaracteres = sqldf(cantidadCaracteres)
+  try(cantidadCaracteres <- sqldf(cantidadCaracteres), silent = TRUE)
+  
   write.csv(cantidadCaracteres, file = paste(carpeta,"Resultados","CaracteristicasTecnicas","Caracteres",archivoCaracteres,sep="/"),row.names = FALSE)
   write.csv(cantidadCaracteres, file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoCaracteres,sep="/"),row.names = FALSE)
   
   # --- Contenidos multimedia --- #
   # ---  Categorizacion por dispositivo --- #
-  consulta_dispositivos = "SELECT COUNT(source) Total FROM aux"
-  dispositivos = sqldf(consulta_dispositivos)
+  consulta_dispositivos <- "SELECT COUNT(source) Total FROM aux"
+  try(dispositivos <- sqldf(consulta_dispositivos), silent = TRUE)
   
-  dispositivos_android = "SELECT COUNT(source) Androids FROM aux WHERE source LIKE '%Android'"
-  androids = sqldf(dispositivos_android)
+  dispositivos_android <- "SELECT COUNT(source) Androids FROM aux WHERE source LIKE '%Android'"
+  try(androids <- sqldf(dispositivos_android), silent = TRUE)
   
-  consulta_iphone = "SELECT COUNT(source) Iphone FROM aux WHERE source LIKE '%iPhone'"
-  iphone = sqldf(consulta_iphone)
+  consulta_iphone <- "SELECT COUNT(source) Iphone FROM aux WHERE source LIKE '%iPhone'"
+  try(iphone <- sqldf(consulta_iphone), silent = TRUE)
   
-  consulta_web = "SELECT COUNT(source) Web FROM aux WHERE source LIKE '%Web%'"
-  web = sqldf(consulta_web)
+  consulta_web <- "SELECT COUNT(source) Web FROM aux WHERE source LIKE '%Web%'"
+  try(web <- sqldf(consulta_web), silent=TRUE)
   
-  consulta_otros = "SELECT COUNT(source) Otros FROM aux WHERE source NOT LIKE '%Android' AND source NOT LIKE '%iPhone' AND source NOT LIKE '%Web%'"
-  otros = sqldf(consulta_otros)
+  consulta_otros <- "SELECT COUNT(source) Otros FROM aux WHERE source NOT LIKE '%Android' AND source NOT LIKE '%iPhone' AND source NOT LIKE '%Web%'"
+  try(otros <- sqldf(consulta_otros), silent = TRUE)
   
-  consulta_union = "SELECT * FROM androids, iphone, web, otros, dispositivos"
-  consulta_union = sqldf(consulta_union)
-  todos = consulta_union
+  consulta_union <- "SELECT * FROM androids, iphone, web, otros, dispositivos"
+  try(consulta_union <- sqldf(consulta_union), silent = TRUE)
+  
+  todos <- consulta_union
+  
   write.csv(consulta_union, file = paste(carpeta,"Resultados","CaracteristicasTecnicas","Dispositivos",archivoUnionDispositivos,sep = "/"),row.names = FALSE)
   write.csv(consulta_union, file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoUnionDispositivos,sep = "/"),row.names = FALSE)
   
@@ -539,8 +541,8 @@ while(i <= numArchivos)
            xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
            yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
   
-  plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/CaracteristicasTecnicas/Dispositivos/PorcentajeDispositivos.png")
-  plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/ResultadosGenerales/PorcentajeDispositivosA.png")
+  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"Resultados","CaracteristicasTecnicas","Dispositivos","PorcentajeDispositivos.png",sep = "/")), silent = TRUE)
+  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"Resultados","ResultadosGenerales","PorcentajeDispositivosA.png", sep = "/")), silent = TRUE)
   
   # --- Georeferencia --- #
   georeferencia = "SELECT (count(distinct(location))-1) porcentaje FROM aux"
@@ -567,8 +569,8 @@ while(i <= numArchivos)
     layout(title ="Ranking de paises", yaxis = list(title = 'Cantidad'), xaxis = list(title='Paises'))
   
   #Ruta de salida de la imagen
-  plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/CaracteristicasTecnicas/RankingGeoreferencia/RankingPaises.png")
-  plotly_IMAGE(p, format = "png", out_file = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp/Resultados/ResultadosGenerales/RankingPaisesA.png")
+  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta, "Resultados","CaracteristicasTecnicas","RankingGeoreferencia","RankingPaises.png", sep = "/")), silent = TRUE)
+  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"Resultados","ResultadosGenerales","RankingPaisesA.png")), silent = TRUE)
   
   
   write.csv(porcentaje_georeferencia , file = paste(carpeta,"Resultados","CaracteristicasTecnicas","PorcentajeGeoreferencia",archivoGeoreferencia,sep = "/"),row.names = FALSE)
@@ -606,7 +608,6 @@ while(i <= numArchivos)
   
   write.csv(genero,file = paste(carpeta,"Resultados","Comunidad","CategorizarSexo",archivoGenero,sep = "/"),row.names=FALSE)
   write.csv(union_sexo,file = paste(carpeta,"Resultados","Comunidad","CategorizarSexo",archivoUnionSexo,sep = "/"),row.names=FALSE)
-  #Ubicacion resultados generales
   write.csv(genero,file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoGenero,sep = "/"),row.names=FALSE)
   write.csv(union_sexo,file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoUnionSexo,sep = "/"),row.names=FALSE)
   
