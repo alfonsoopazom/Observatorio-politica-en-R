@@ -26,12 +26,12 @@ for(i in 1:length(nombres[,1])){
   if(length(respuesta[,1])>=1000)
   {
       respuesta<-respuesta[x[,1],]
-      archivo_final<-"/Users/alfonsoopazo/Desktop/Observatorio/Muestra/Resultados"
+      archivo_final<-paste(carpeta,"Resultados",sep = "/")
       write.csv(respuesta,file = paste(archivo_final,nombres$nombres[i],sep = "/"),row.names = FALSE)
     
   }else{
     respuesta <- respuesta[1:length(consulta[,1]),]
-    archivo_final<-"/Users/alfonsoopazo/Desktop/Observatorio/Muestra/Resultados"
+    archivo_final<-paste(carpeta,"Resultados",sep = "/")
     write.csv(respuesta,file = paste(archivo_final,nombres$nombres[i],sep = "/"),row.names = FALSE)
   }
 }
