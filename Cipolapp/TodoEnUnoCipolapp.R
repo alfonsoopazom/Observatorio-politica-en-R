@@ -128,15 +128,15 @@ while(i <= numArchivos)
   #--- Arreglo de los tildes ---#
   consulta$text=gsub("<f1>","ñ",consulta$text)#ñ
   consulta$text=gsub("<e1>","á",consulta$text)#a
-  consulta$text=gsub("<c1>","Á",consulta$text)#A
+  consulta$text=gsub("<c1>","�",consulta$text)#A
   consulta$text=gsub("<e9>","é",consulta$text)#e
-  consulta$text=gsub("<c9>","É",consulta$text)#E
-  consulta$text=gsub("<ed>","í",consulta$text)#i
-  consulta$text=gsub("<cd>","Í",consulta$text)#I
+  consulta$text=gsub("<c9>","�",consulta$text)#E
+  consulta$text=gsub("<ed>","�",consulta$text)#i
+  consulta$text=gsub("<cd>","�",consulta$text)#I
   consulta$text=gsub("<f3>","ó",consulta$text)#o
-  consulta$text=gsub("<d3>","Ó",consulta$text)#O
+  consulta$text=gsub("<d3>","�",consulta$text)#O
   consulta$text=gsub("<fa>","ú",consulta$text)#u
-  consulta$text=gsub("<da>","Ú",consulta$text)#U
+  consulta$text=gsub("<da>","�",consulta$text)#U
   consulta$text=gsub("<40>","@",consulta$text)#@
   
   

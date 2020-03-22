@@ -3,13 +3,13 @@ library(sqldf)
 library(plyr)  
 
 
-carpeta<-"C:/Users/Rubenz_96/Desktop/ProgramasR/JuntadorDeBases"
+carpeta<-"C:/Users/alfon/Desktop/R/UnionBases"
 
-carpeta_Bases_Uno<-paste(carpeta,"Bases1",sep="/")
+carpeta_Bases_Uno<-paste(carpeta,"Base1",sep="/")
 nombres_Uno<-dir(carpeta_Bases_Uno)
 nombres_Uno<-as.data.frame(nombres_Uno)
 
-carpeta_Bases_Dos<-paste(carpeta,"Bases2",sep="/")
+carpeta_Bases_Dos<-paste(carpeta,"Base2",sep="/")
 nombres_Dos<-dir(carpeta_Bases_Dos)
 nombres_Dos<-as.data.frame(nombres_Dos)
 
@@ -20,7 +20,7 @@ for(i in 1:length(nombres_Uno[,1]))
 {
   
   mencion_Uno=toString(nombres_Uno[i,1])
-  esta_Uno=sqldf(paste0("select * from nombres_dos where nombres_Dos=", paste("'","'",sep=mencion_Uno)))
+  esta_Uno=sqldf(paste0("SELECT * FROM nombres_dos where nombres_Dos=", paste("'","'",sep=mencion_Uno)))
   esta_Uno=length(esta_Uno[,1])
   
   archivo_temporal_Uno<-paste(carpeta_Bases_Uno,mencion_Uno,sep="/")
@@ -30,9 +30,7 @@ for(i in 1:length(nombres_Uno[,1]))
   {
     archivo_temporal_Dos<-paste(carpeta_Bases_Dos,mencion_Uno,sep="/")
     consulta_Dos<-read.csv(archivo_temporal_Dos,header = TRUE,sep = ",",encoding = "UTF-7")
-    
     consulta_Uno<-rbind.fill(consulta_Uno,consulta_Dos)
-    
     write.csv(consulta_Uno, row.names = FALSE, file = paste0(carpeta,"/Resultados/",mencion_Uno))
     
   }else{
@@ -45,7 +43,7 @@ for(i in 1:length(nombres_Dos[,1]))
 {
   
   mencion_Dos=toString(nombres_Dos[i,1])
-  esta_Dos=sqldf(paste0("select * from nombres_Uno where nombres_Uno=", paste("'","'",sep=mencion_Dos)))
+  esta_Dos=sqldf(paste0("SELECT * FROM nombres_Uno where nombres_Uno=", paste("'","'",sep=mencion_Dos)))
   esta_Dos=length(esta_Dos[,1])
 
   if(esta_Dos<1){
