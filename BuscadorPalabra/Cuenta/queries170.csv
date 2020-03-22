@@ -1,0 +1,61 @@
+Nombre;Query1;Nombre_Archivo;Carpeta ;;;;;;
+Estudio ;migrante OR Migracion OR inmigrante OR emigrante OR migracion OR inmigracion OR emigracion;estudiomigracion;Proyectos;;;;;;
+Estudio Migracion 2;extranjero OR extranjera OR extranjeros OR extranjeras AND chile;estudiomigracion2;Proyectos;;;;;;
+refugiado;Refugiado OR refugiados OR refugiadas OR refugiada;refugiado;Proyectos;;;;;;
+desplazado;Desplazado OR Desplazados AND politicos;desplazado;Proyectos;;;;;;
+Autoritarismo;autoritario OR autoritarios OR autoritaria OR autoritarias OR autoritarismos;autoritario;Proyectos;;;;;;
+Totalitarismo;totalitarismo OR totalitarismos OR totalitario OR totalitarias OR totalitarios;totalitario;Proyectos;;;;;;
+Populismo;populista OR populismo OR populistas OR populismos ;populista;Proyectos;;;;;;
+Capitalismo;capitalista OR capitalistas OR capitalismo OR capitalismos;capitalismo;Proyectos;;;;;;
+neoliberalismo;neoliberal OR neoliberales OR neoliberalismo OR neoliberalismos;neoliberal;Proyectos;;;;;;
+EconomiaCircular;economia circular;economiacircular;Proyectos;;;ley AND revocacion;ley AND revocacion;ley AND revocacion;Proyectos
+InnovacionSocial;innovacion social;innovacionsocial;Proyectos;;;ley AND revocatoria;ley AND revocatoria;ley AND revocatoria;Proyectos
+Derechos Humanos;Derecho humano;DDHH2;Proyectos;;;Revocacion AND mandato;Revocacion AND mandato;Revocacion AND mandato;Proyectos
+Noticias Falsas;fake news OR fakes news OR noticia falsa OR noticias falsas;fakenews;Proyectos;;;Revocatoria AND mandato;Revocatoria AND mandato;Revocatoria AND mandato;Proyectos
+Desarrollo Sostenible;desarrollo sostenible;desarrollosostenible;Proyectos;;;inddhh;inddhh;inddhh;Proyectos
+ODS;ods;ods;Proyectos;;;indh;INDH;indh;Proyectos
+Leyetiquetado 1;ley AND etiquetado;leyetiquetado;Proyectos;;;;;;
+Ley etiquetado 2;alimento OR alimentos AND etiquetado;leyetiquetado2;Proyectos;;;;;;
+terrorismo;terrorista OR terroristas OR terrorismo OR terrorismos;terrorismo;Proyectos;;;;;;
+Adultos Mayores;Adultos AND Mayores;AdultosMayores;Proyectos;;;;;;
+tiempos mejores ;tiempos AND mejores;tiemposmejores;Proyectos;;;;;;
+AdmisionJusta;AdmisionJusta;AdmisionJusta;Proyectos;;;;;;
+A_delPacifico;A_delPacifico;A_delPacifico;Alianza;;;;;;
+AGCICHILE;AGCICHILE;AGCICHILE;Alianza;;;;;;
+AMEXCID;AMEXCID;AMEXCID;Alianza;;;;;;
+apciagencia;apciagencia;apciagencia;Alianza;;;;;;
+APCColombia ‏;APCColombia‏;APCColombia ‏;Alianza;;;;;;
+ProChile;ProChile;ProChile;Alianza;;;;;;
+PROCOLOMBIACO;PROCOLOMBIACO;PROCOLOMBIACO;Alianza;;;;;;
+Promperu;Promperu;Promperu;Alianza;;;;;;
+Cambio AND Climatico;Cambio AND Climatico; CambioClimatico;Proyectos;;;;;;
+Calentamiento ANG Global;Calentamiento AND Global;CalentamientoGlobal;Proyectos;;;;;;
+cambioclimatico;cambioclimatico;Cambioclimaticohastag;Proyectos;;;;;;
+Calentamientoglobal;CalentamientoGlobal;CalentamientoGlobalhastag;Proyectos;;;;;;
+Dictadura;dictador OR dictadura OR dictaduras OR dictatorial OR dictadores;dictadura;Proyectos;;;;;;
+CampanaANDInvierno;Campana AND invierno;Campanainvierno;Salud;;;;;;
+codigoazul;codigoazul;codigoazul;Salud;;;;;;
+defensoria ninez;defensoria AND ninez;defensoria ninez;Salud;;;;;;
+Cdefensorianinez;defensorianinez;Cdefensorianinez;Salud;;;;;;
+Patricia munoz garcia;Patricia munoz garcia OR pa_tty;Patricia munoz garcia;Salud;;;;;;
+COP25;COP25;COP25;Proyectos;;;;;;
+asamblea constituyente;asamblea constituyente;asamblea constituyente;Proyectos;;;;;;
+cabildo OR Cabildos;cabildo OR Cabildos OR cabilda OR Cabildas;cabildo;Proyectos;;;;;;
+nueva constitucion;nueva constitucion;nuevaconstitucion;Proyectos;;;;;;
+comisionexperto;comision AND expertos;comisionexperto;Proyectos;;;;;;
+convensionconsti;comision OR convension AND Constituyente ;convesioncojsti;Proyectos;;;;;;
+parlamentoconsti;Parlamento AND Constituyente;parlamentoconsti;Proyectos;;;;;;
+plebiscito;plebiscito;plebiscito;Proyectos;;;;;;
+canabis OR cannabis;canabis OR cannabis;canabis;Proyectos;;;;;;
+marihuana OR mariguana;marihuana OR mariguana;marihuana;Proyectos;;;;;;
+marijuana;marijuana;marijuana;Proyectos;;;;;;
+Cabildodigital;Cabildodigital;Cabildodigital;Proyectos;;;;;;
+ley AND revocacion;ley AND revocacion;ley AND revocacion;Proyectos;;;;;;
+ley AND revocatoria;ley AND revocatoria;ley AND revocatoria;Proyectos;;;;;;
+Revocacion AND mandato;Revocacion AND mandato;Revocacion AND mandato;Proyectos;;;;;;
+Revocatoria AND mandato;Revocatoria AND mandato;Revocatoria AND mandato;Proyectos;;;;;;
+inddhh;inddhh;inddhh;Proyectos;;;;;;
+indh;INDH;indh;Proyectos;;;;;;
+cadem;cadem OR #cadem  OR cadem_cl;cadem;Proyectos;;;;;;
+adimark;Adimark OR #adimark;adimark;Proyectos;;;;;;
+cep;cep OR #CEP OR cepchile;cep;Proyectos;;;;;;
