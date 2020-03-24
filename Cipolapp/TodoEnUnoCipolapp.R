@@ -297,20 +297,35 @@ while(i <= numArchivos)
   write.csv(data_bigrama, file = paste(carpeta,"Resultados", "ResultadosGenerales","data_bigramaA.csv",sep = "/"))
   
   # --- Comunidades --- #
-  # --- Referentes --- #
-  referentes <- "SELECT DISTINCT(mentions_screen_name) as Menciones FROM aux"
-  referentes <- sqldf(referentes)
+  # --- REFERENTES 2.0 ---#
+  menciones <- unlist(regmatches(aux$text,gregexpr(patref,aux$text)))
+  menciones <- str_replace_all(menciones,'@','')
+  menciones <-as.data.frame(menciones)
+ 
+  referentes1 <- sqldf("SELECT DISTINCT(menciones) 'Usuarios Mencionados', COUNT(menciones) total_menciones
+                           FROM menciones
+                           WHERE menciones !=''
+                           GROUP BY menciones
+                           ORDER BY total_menciones DESC
+                           LIMIT 30" )
+  
+  write.csv(referentes1, file = paste(carpeta,"Resultados","Comunidad","Referentes","Referentes2.0.csv",sep = "/"),row.names=FALSE)
+  write.csv(referentes1, file = paste(carpeta,"Resultados", "ResultadosGenerales","Referentes2.0.csv",sep = "/"),row.names=FALSE)
+  
+  # --- Referentes --- HAY QUE MODIFICAR LAS MENCIONES EN FORMA DE VECTORES #
+  try(referentes <- sqldf("SELECT DISTINCT(mentions_screen_name) as 'Usuarios mencionados' FROM aux
+                           WHERE mentions_screen_name !=''"))
   
   write.csv(referentes, file = paste(carpeta,"Resultados","Comunidad","Referentes",archivoReferentes,sep = "/"),row.names=FALSE)
   write.csv(referentes, file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoReferentes,sep = "/"),row.names=FALSE)
   
   # --- Influenciadores --- #
-  influenciadores <- "SELECT retweet_screen_name USUARIO,count(retweet_screen_name) CANTIDAD from aux 
+  try(influenciadores <- sqldf("SELECT retweet_screen_name 'Usuario_Retweeado',count(retweet_screen_name) Cantidad_Retweet 
+                      FROM aux 
                       WHERE is_retweet 
                       GROUP BY retweet_screen_name 
-                      ORDER BY 
-                      COUNT(retweet_screen_name) DESC"
-  try(influenciadores <- sqldf(influenciadores), silent = TRUE)
+                      ORDER BY COUNT(retweet_screen_name) DESC
+                      LIMIT 20"), silent =TRUE)
   
   write.csv(influenciadores,file <- paste(carpeta,"Resultados","Comunidad","Influenciadores",archivoInfluenciadores,sep = "/"),row.names = FALSE)
   write.csv(influenciadores,file <- paste(carpeta,"Resultados", "ResultadosGenerales",archivoInfluenciadores,sep = "/"),row.names = FALSE)
