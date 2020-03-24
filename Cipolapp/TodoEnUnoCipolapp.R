@@ -13,6 +13,7 @@ library(tm)
 library(colorspace)
 library(plotly)
 library(sqldf)
+library(RSQLite)
 
 
 carpeta = "/Users/alfonsoopazo/Desktop/Observatorio/Cipolapp"
@@ -128,15 +129,15 @@ while(i <= numArchivos)
   #--- Arreglo de los tildes ---#
   consulta$text=gsub("<f1>","ñ",consulta$text)#ñ
   consulta$text=gsub("<e1>","á",consulta$text)#a
-  consulta$text=gsub("<c1>","�",consulta$text)#A
+  consulta$text=gsub("<c1>","Á",consulta$text)#A
   consulta$text=gsub("<e9>","é",consulta$text)#e
-  consulta$text=gsub("<c9>","�",consulta$text)#E
-  consulta$text=gsub("<ed>","�",consulta$text)#i
-  consulta$text=gsub("<cd>","�",consulta$text)#I
+  consulta$text=gsub("<c9>","É",consulta$text)#E
+  consulta$text=gsub("<ed>","í",consulta$text)#i
+  consulta$text=gsub("<cd>","Í",consulta$text)#I
   consulta$text=gsub("<f3>","ó",consulta$text)#o
-  consulta$text=gsub("<d3>","�",consulta$text)#O
+  consulta$text=gsub("<d3>","Ó",consulta$text)#O
   consulta$text=gsub("<fa>","ú",consulta$text)#u
-  consulta$text=gsub("<da>","�",consulta$text)#U
+  consulta$text=gsub("<da>","Ú",consulta$text)#U
   consulta$text=gsub("<40>","@",consulta$text)#@
   
   
@@ -326,7 +327,7 @@ while(i <= numArchivos)
   all_words <- as.data.frame(all_words)
   
   hashtags <- sqldf('SELECT distinct(all_words) Hashtag, COUNT(all_words) Suma
-                    FROM all_words GROUP BY Hashtag ORDER BY suma DESC LIMIT 5')
+                    FROM all_words GROUP BY Hashtag ORDER BY suma DESC LIMIT 20')
   
   hashtagx <- sqldf("SELECT * FROM hashtags WHERE Hashtag NOT LIKE ''")
   
@@ -429,23 +430,25 @@ while(i <= numArchivos)
   # --- Categorizacion --- #
   
   # --- Valoracion --- #
-  Valoracion <- "SELECT user_id as ID_usuario,
+  Valoracion <- sqldf("SELECT screen_name as Usuario,
                 MAX(favorite_count) as Max_favoritos,
                 MIN(favorite_count) as Min_favoritos,
-                AVG(favorite_count) as Promedio FROM aux"
+                AVG(favorite_count) as Promedio FROM aux")
   
-  ValoracionTweet <- "SELECT  user_id as ID_usuario,
+  ValoracionTweet <- sqldf("SELECT  user_id as ID_usuario,
                       MAX(favorite_count) as Max_favoritos,
-                      text as Tweet FROM aux"
+                      text as Tweet FROM aux")
   
-  Valoracion <- sqldf(Valoracion)
-  ValoracionTweet <- sqldf(ValoracionTweet)
+  ValoracionFinal <- sqldf("SELECT * FROM Valoracion, ValoracionTweet")
   
-  write.csv(Valoracion, file = paste(carpeta,"Resultados","Efectos","Valoracion",archivoValoracion,sep="/" ),row.names = FALSE)
-  write.csv(ValoracionTweet, file = paste(carpeta,"Resultados","Efectos","Valoracion",archivoValoracionTweet,sep="/" ),row.names = FALSE)
+
+  #ValoracionTweet <- sqldf(ValoracionTweet)
+  
+  write.csv(ValoracionFinal, file = paste(carpeta,"Resultados","Efectos","Valoracion",archivoValoracion,sep="/" ),row.names = FALSE)
+  #write.csv(ValoracionTweet, file = paste(carpeta,"Resultados","Efectos","Valoracion",archivoValoracionTweet,sep="/" ),row.names = FALSE)
   #Ubiacion carpeta resultados generales
-  write.csv(Valoracion, file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoValoracion,sep="/" ),row.names = FALSE)
-  write.csv(ValoracionTweet, file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoValoracionTweet,sep="/" ),row.names = FALSE)
+  write.csv(ValoracionFinal, file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoValoracion,sep="/" ),row.names = FALSE)
+  #write.csv(ValoracionTweet, file = paste(carpeta,"Resultados", "ResultadosGenerales",archivoValoracionTweet,sep="/" ),row.names = FALSE)
   
   # --- Muesta ---#
   for(i in 1:length(nombres[,1])){
@@ -545,22 +548,20 @@ while(i <= numArchivos)
   try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"Resultados","ResultadosGenerales","PorcentajeDispositivosA.png", sep = "/")), silent = TRUE)
   
   # --- Georeferencia --- #
-  georeferencia = "SELECT (count(distinct(location))-1) porcentaje FROM aux"
+  try(georeferencia <- sqldf("SELECT (count(distinct(country))-1) Porcentaje FROM aux"),silent = TRUE)
   
   # ---  Ranking de los 5 lugares mas mencionados --- #
-  ranking_paises = "SELECT count(country) Cantidad, country as Paises
+  try(ranking_paises <- sqldf("SELECT count(country) Cantidad, place_full_name as Lugar,
+                    place_type 'Tipo de lugar', country Paises, country_code 'Codigo Pais'
                     FROM aux WHERE Paises NOT LIKE ''
                     GROUP BY Paises 
                     ORDER BY Cantidad DESC
-                    LIMIT 10"
-                      
-  try(georeferencia <- sqldf(georeferencia), silent = TRUE)
-  porcentaje_georeferencia = round((georeferencia/total_filas)*100,2)
-  try(ranking_paises <- sqldf(ranking_paises), silent = TRUE)
-
-  # --- Grafico Ranking por paises --- #
+                    LIMIT 10"), silent = TRUE)
   
-  ranking_paises = as.data.frame(ranking_paises)
+  porcentaje_georeferencia = round((georeferencia/total_filas)*100,2)
+  
+  # --- Grafico Ranking por paises --- #
+  ranking_paises <- as.data.frame(ranking_paises)
   
   P = ranking_paises$Paises
   C = ranking_paises$Cantidad
@@ -570,7 +571,7 @@ while(i <= numArchivos)
   
   #Ruta de salida de la imagen
   try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta, "Resultados","CaracteristicasTecnicas","RankingGeoreferencia","RankingPaises.png", sep = "/")), silent = TRUE)
-  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"Resultados","ResultadosGenerales","RankingPaisesA.png")), silent = TRUE)
+  try(plotly_IMAGE(p, format = "png", out_file = paste(carpeta,"Resultados","ResultadosGenerales","RankingPaisesA.png",sep = "/")), silent = TRUE)
   
   
   write.csv(porcentaje_georeferencia , file = paste(carpeta,"Resultados","CaracteristicasTecnicas","PorcentajeGeoreferencia",archivoGeoreferencia,sep = "/"),row.names = FALSE)
