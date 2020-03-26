@@ -42,7 +42,12 @@ for(i in 1 :as.numeric(length(datos[,1])))
 {
   
   Busqueda<-toString(datos$Query[i])
-  tweets <- search_tweets( Busqueda, n =1000000,since="2020-03-13", until="2020-03-15", retryonratelimit = TRUE)
+  tweets <- search_tweets( Busqueda,
+                           n =10000000,
+                           since=as.Date("2020-03-13"), 
+                           until=as.Date("2020-03-15"), 
+                           retryonratelimit = TRUE)
+  
   tweets<-as.data.frame(tweets)
   largo<-length(tweets[1,])
   
@@ -51,7 +56,7 @@ for(i in 1 :as.numeric(length(datos[,1])))
     for(j in 1:length(tweets[1,]))
     {
       tweets[,j]<-as.character(tweets[,j])
-      print(tweets[,j]<-as.character(tweets[,j]))
+      #print(tweets[,j]<-as.character(tweets[,j]))
     }
     
     carpeta_descarga<-paste(carpeta,toString(datos$Carpeta[i]),sep="/")
