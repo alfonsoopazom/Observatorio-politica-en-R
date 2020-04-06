@@ -1,14 +1,8 @@
-#install.packages("sqldf")
-#Librerias
-#install.packages("readr")
-#install.packages("tidyverse")
-
 library(readr)
 library(stringr)
 library(sqldf)
 library(RSQLite)
-
-
+#Arreglo de los tildes.
 Sys.setlocale(category = "LC_CTYPE", locale = "C")
 
 patref <-"@[A-Za-z0-9]*[^\\s:_.<]"
@@ -86,8 +80,6 @@ while(x <= ciclo)
                   'ORDER BY Cantidad
                   DESC')
   
-  #print(toString(nombre))
-
   interaccion <- sqldf(interaccion)
   cantidadInteracciones <-interaccion$Cantidad
   cantidadGriterio <- (total_filas-cantidadInteracciones)
