@@ -77,15 +77,19 @@ while(x <= ciclo)
   # El is_retweet debe ser False, por que sino, considera todas las menciones, mas la cuenta retweetteada.
   interaccion <- paste0('SELECT menciones Cuenta ,count(menciones) Cantidad 
                   FROM menciones
-                  WHERE menciones ="',toString(auxCuentas[x,]),'"'
-                  ,'OR',' ','menciones="',' ',toString(auxCuentas[x,]),'"'
-                  ,'OR',' ','menciones="',toString(auxCuentas[x,]),' ','"','
-                  ORDER BY Cantidad
+                  WHERE menciones ="',nombre,'"',
+                  'OR menciones="',nombre,' ','"',
+                  'OR menciones="',' ',nombre,'"',
+                  'OR menciones="',toString(auxCuentas$X...cuenta),'"',
+                  'OR menciones="',toString(auxCuentas$X...cuenta),' ','"',
+                  'OR menciones="',' ',toString(auxCuentas$X...cuenta),'"',
+                  'ORDER BY Cantidad
                   DESC')
   
-  interacccion <- sqldf(interaccion)
-  
-  cantidadInteracciones <- interacccion$Cantidad
+  #print(toString(nombre))
+
+  interaccion <- sqldf(interaccion)
+  cantidadInteracciones <-interaccion$Cantidad
   cantidadGriterio <- (total_filas-cantidadInteracciones)
   porcentajeGriterio <-round((cantidadGriterio/total_filas)*100,2)
   porcentajeInteracciones <- round((cantidadInteracciones/total_filas)*100,2)
@@ -105,8 +109,6 @@ while(x <= ciclo)
                        "Total_datos",
                        "%_Interacciones",
                        "%_Griterio")
-  
-   
   
     # --- ----------------------------- --- #
   write.csv(tabla, file = paste(nombre_carpeta,nombre_final,sep = "/"),row.names=FALSE)
